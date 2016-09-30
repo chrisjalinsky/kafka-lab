@@ -1,0 +1,7 @@
+---
+
+- name: Ensure JAVA_HOME environment variable set
+  lineinfile:
+    dest: /etc/environment
+    line: "JAVA_HOME={{ kafka_java_home }}"
+    regexp: "^JAVA_HOME=.*$"

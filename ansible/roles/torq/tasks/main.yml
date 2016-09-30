@@ -1,0 +1,28 @@
+---
+
+- name: Install apt packages
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+    - "ca-certificates"
+    - "build-essential"
+    - "libxmu-dev"
+    - "libxmu6"
+    - "libxi-dev"
+    - "libxine-dev"
+    - "libalut-dev"
+    - "freeglut3"
+    - "freeglut3-dev"
+    - "cmake"
+    - "libogg-dev"
+    - "libvorbis-dev"
+    - "libxxf86dga-dev"
+    - "libxxf86vm-dev"
+    - "libxrender-dev"
+    - "libxrandr-dev"
+    - "zlib1g-dev"
+    - "libpng12-dev"
+    - "libplib-dev"
+    - "wmctrl"

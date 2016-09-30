@@ -1,0 +1,31 @@
+---
+
+- name: restart schema-registry-start
+  service:
+    name: schema-registry-start
+    state: restarted
+
+- name: restart connect-distributed
+  service:
+    name: connect-distributed
+    state: restarted
+
+- name: restart control-center-start
+  service:
+    name: control-center-start
+    state: restarted
+
+- name: restart camus-run
+  service:
+    name: camus-run
+    state: restarted
+
+- name: restart connect-standalone
+  service:
+    name: connect-standalone
+    state: restarted
+
+- name: restart kafka-rest-start
+  service:
+    name: kafka-rest-start
+    state: restarted

@@ -1,0 +1,9 @@
+---
+
+- name: Workaround for the Ansible 2.2 way to install packages
+  shell: apt-get install mapr-client -y --allow-unauthenticated
+
+- name: Template /opt/mapr/oozie/oozie-{{ mapr_client_oozie_version }}/conf/oozie-site.xml
+  template:
+    src: "oozie-site.xml"
+    dest: "/opt/mapr/oozie/oozie-{{ mapr_client_oozie_version }}/conf/oozie-site.xml"

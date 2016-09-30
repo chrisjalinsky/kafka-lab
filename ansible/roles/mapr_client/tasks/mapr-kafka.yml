@@ -1,0 +1,4 @@
+---
+
+- name: Workaround for the Ansible 2.2 way to install mapr-kafka
+  shell: apt-get install mapr-kafka -y --allow-unauthenticated 

@@ -1,0 +1,4 @@
+---
+
+go_user: "vagrant"
+go_user_home: "/home/{{ go_user }}"

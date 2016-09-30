@@ -1,0 +1,97 @@
+---
+
+- name: Add confluent apt key
+  apt_key:
+    url: "http://packages.confluent.io/deb/{{ kafka_confluent_archive }}/archive.key"
+
+- name: Install Java Maven and Gradle component repositories
+  apt_repository:
+    repo: "{{ item.repo }}"
+    update_cache: yes
+  with_items:
+    - repo: "ppa:webupd8team/java"
+    - repo: "ppa:andrei-pozolotin/maven3"
+    - repo: "ppa:cwchien/gradle"
+    - repo: "deb [arch=amd64] http://packages.confluent.io/deb/{{ kafka_confluent_archive }} stable main"
+
+- name: Set debconf selections for Java
+  debconf: name='oracle-java{{ kafka_java_version }}-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+
+- name: Workaround pre Ansible 2.2 to allow deb conf vtype seen
+  shell: echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections
+
+- name: Install Oracle Java {{ kafka_java_version }}, Gradle, Git and Maven 3
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+    - "oracle-java{{ kafka_java_version }}-installer"
+    - "maven3"
+    - "gradle"
+    - "git"
+    - "confluent-platform-{{ kafka_scala_version }}"
+
+- name: Ensure properties templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    backup: yes
+  with_items:
+    - src: "{{ kafka_confluent_schema_registry.src }}"
+      dest: "{{ kafka_confluent_schema_registry.dest }}"
+    - src: "{{ kafka_confluent_connect_avro_distributed.src }}"
+      dest: "{{ kafka_confluent_connect_avro_distributed.dest }}"
+    - src: "{{ kafka_confluent_control_center.src }}"
+      dest: "{{ kafka_confluent_control_center.dest }}"
+    - src: "{{ kafka_confluent_hdfs_connect.src }}"
+      dest: "{{ kafka_confluent_hdfs_connect.dest }}"
+    - src: "{{ kafka_confluent_connect_avro_standalone.src }}"
+      dest: "{{ kafka_confluent_connect_avro_standalone.dest }}"
+    - src: "{{ kafka_confluent_kafka_rest.src }}"
+      dest: "{{ kafka_confluent_kafka_rest.dest }}"
+    - src: "{{ kafka_mirror_maker.consumer_src }}"
+      dest: "{{ kafka_mirror_maker.consumer_dest }}"
+    - src: "{{ kafka_mirror_maker.producer_src }}"
+      dest: "{{ kafka_mirror_maker.producer_dest }}"
+
+- name: Ensure upstart templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0755"
+  with_items:
+    - src: "etc/init/{{ kafka_confluent_schema_registry.name }}.conf"
+      dest: "/etc/init/{{ kafka_confluent_schema_registry.name }}.conf"
+    - src: "etc/init/{{ kafka_confluent_control_center.name }}.conf"
+      dest: "/etc/init/{{ kafka_confluent_control_center.name }}.conf"
+    - src: "etc/init/{{ kafka_confluent_hdfs_connect.name }}.conf"
+      dest: "/etc/init/{{ kafka_confluent_hdfs_connect.name }}.conf"
+    - src: "etc/init/{{ kafka_confluent_kafka_rest.name }}.conf"
+      dest: "/etc/init/{{ kafka_confluent_kafka_rest.name }}.conf"
+    - src: "etc/init/{{ kafka_mirror_maker.name }}.conf"
+      dest: "/etc/init/{{ kafka_mirror_maker.name }}.conf"
+    #- src: "etc/init/{{ kafka_confluent_connect_avro_distributed.name }}.conf"
+    #  dest: "/etc/init/{{ kafka_confluent_connect_avro_distributed.name }}.conf"
+    #- src: "etc/init/{{ kafka_confluent_camus_run.name }}.conf"
+    #  dest: "/etc/init/{{ kafka_confluent_camus_run.name }}.conf"
+  notify:
+    - "restart schema-registry-start"
+    - "restart control-center-start"
+    #- "restart connect-standalone"
+    #- "restart kafka-rest"
+    #- "restart camus-run"
+    #- "restart connect-distributed"
+
+- name: Start services
+  service:
+    name: "{{ item.name }}"
+    state: started
+  with_items:
+    - name: "{{ kafka_confluent_schema_registry.name }}"
+    - name: "{{ kafka_confluent_control_center.name }}"
+    #- name: "{{ kafka_confluent_hdfs_connect.name }}"
+    #- name: "{{ kafka_confluent_kafka_rest.name }}"
+    #- name: "{{ kafka_confluent_camus_run.name }}"
+    #- name: "{{ kafka_confluent_connect_avro_distributed.name }}"
+    

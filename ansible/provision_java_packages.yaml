@@ -1,0 +1,9 @@
+---
+
+- hosts: hadoop_servers
+  become: yes
+  gather_facts: yes
+  roles:
+    - role: oracle-java
+      oracle_java_version: "8"
+    #- maven3

@@ -1,0 +1,28 @@
+---
+
+- name: Add Mapr apt key
+  apt_key:
+    url: "http://package.mapr.com/releases/pub/maprgpg.key"
+
+- name: Install Java and Mapr repositories
+  apt_repository:
+    repo: "{{ item.repo }}"
+    update_cache: yes
+  with_items:
+    - repo: "deb http://package.mapr.com/releases/ecosystem-5.x/ubuntu binary/"
+    - repo: "deb http://package.mapr.com/releases/v{{mapr_client_mapr_version}}/ubuntu/ mapr optional"
+    - repo: "ppa:webupd8team/java"
+
+- name: Run dpkg -l against package list
+  register: dpkg_list
+  shell: "dpkg -l | grep {{ item.name }}"
+  with_items: "{{ mapr_client_install_packages }}"
+  ignore_errors: yes
+
+- name: "Debug dpkg_list.results[x].stdout_lines"
+  debug:
+    var: dpkg_list.results
+
+- name: Workaround for the Ansible 2.2 way to install unsigned pkgs
+  when: mapr_client_install_packages is defined and mapr_client_install_packages|length > 0
+  shell: apt-get update --allow-unauthenticated

@@ -1,0 +1,25 @@
+- hosts: hadoop_servers
+  become: yes
+  become_user: root
+
+  roles:
+    - role: common
+    - role: git
+    - role: oracle-java
+      oracle_java_version: "8"
+    - role: hadoop
+      hadoop_java_home: "/usr/lib/jvm/java-8-oracle"
+      hadoop_node_type: "both"
+      hadoop_namenode_masters: ["hadoop1.lan"]
+      hadoop_namenode_slaves: ["hadoop1.lan"]
+      hadoop_dfs_replication: "1"
+      hadoop_default_fs: "hadoop1.lan"
+      hadoop_yarn_resourcemanager_resource_tracker_address: "hadoop1.lan"
+      hadoop_yarn_resourcemanager_scheduler_address: "hadoop1.lan"
+      hadoop_yarn_resourcemanager_address: "hadoop1.lan"
+      hadoop_mapred_jobtracker_address: "hadoop1.lan"
+      hadoop_dfs_rpc_bind_host: "0.0.0.0"
+      hadoop_dfs_svc_rpc_bind_host: "0.0.0.0"
+      hadoop_dfs_namenode_http_bind_host: "0.0.0.0"
+      hadoop_dfs_namenode_https_bind_host: "0.0.0.0"
+      hadoop_dfs_datanode_iface: "eth1"

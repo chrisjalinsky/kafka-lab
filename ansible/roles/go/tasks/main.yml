@@ -1,0 +1,62 @@
+---
+
+- name: Ensure dirs present
+  file:
+    dest: "{{ item.dest }}"
+    state: "{{ item.state | default('directory') }}"
+    owner: "{{ item.owner|default('root') }}"
+  with_items:
+    - dest: "/tmp"
+    - dest: "/usr/local"
+    - dest: "{{ go_user_home }}/app"
+      owner: "{{ go_user }}"
+
+- name: Install git
+  apt:
+    name: git
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Get Go package
+  get_url:
+    url: "https://storage.googleapis.com/golang/go1.7.1.linux-amd64.tar.gz"
+    dest: "/tmp/go1.7.1.linux-amd64.tar.gz"
+
+- name: Untar Go
+  unarchive:
+    src: "/tmp/go1.7.1.linux-amd64.tar.gz"
+    dest: "/usr/local"
+    copy: no
+    remote_src: yes
+
+- name: Set Export PATH for Go bin dir in specified files
+  lineinfile:
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
+    dest: "{{ item.dest }}"
+    create: yes
+  with_items:
+    - line: "export PATH=$PATH:/usr/local/go/bin"
+      regexp: '^export\s+PATH=\$PATH:/usr/local/go/bin$'
+      dest: "{{ go_user_home }}/.profile"
+
+- name: Set Export GOPATH in specified files
+  lineinfile:
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
+    dest: "{{ item.dest }}"
+    create: yes
+  with_items:
+    - line: "export GOPATH={{ go_user_home }}/app"
+      regexp: '^export\s+GOPATH={{ go_user_home }}/app$'
+      dest: "{{ go_user_home }}/.profile"
+
+- name: Test Go
+  register: go_test
+  shell: "go version"
+  environment:
+    "PATH": "$PATH:/usr/local/go/bin"
+
+- name: Debug Go
+  debug:
+    var: go_test.stdout_lines

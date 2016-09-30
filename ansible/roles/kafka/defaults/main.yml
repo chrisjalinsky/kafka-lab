@@ -1,0 +1,20 @@
+kafka_download: "no"
+kafka_version: "0.10.0.1"
+kafka_scala_version: "2.11"
+kafka_name: "kafka_{{ kafka_scala_version }}-{{ kafka_version }}"
+kafka_archive: "{{ kafka_name }}.tgz"
+#kafka_pkg_url: "http://www.interior-dsgn.com/apache/kafka/{{ kafka_version }}/kafka_{{ kafka_scala_version }}-{{ kafka_version }}.tgz"
+kafka_pkg_url: "http://mirror.symnds.com/software/Apache/kafka/{{ kafka_archive }}"
+kafka_base_dir: "/opt"
+kafka_dir: "{{ kafka_base_dir }}/{{ kafka_name }}"
+kafka_conf_dir: "{{ kafka_dir }}/config"
+kafka_data: "/var/lib/kafka"
+kafka_logs: "/var/log/kafka"
+
+# server.properties
+kafka_brokers:
+  - localhost
+kafka_listeners_port: "9092"
+# kafka_zk_endpoint should be overridden with comma separated list of zookeeper servers
+kafka_zk_endpoint: "localhost:2181"
+kafka_host_name: "localhost"

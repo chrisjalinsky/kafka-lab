@@ -1,0 +1,42 @@
+---
+
+mapr_client_mapr_version: "5.2.0"
+
+# oozie uses this var to open perms in /opt/mapr/hadoop/hadoop-2.x.x/etc/hadoop/core-site.xml
+mapr_client_hadoop_version: "2.7.0"
+
+# oozie uses this var to open perms in /opt/mapr/oozie/oozie-4.2.0/conf/oozie-site.xml
+mapr_client_oozie_version: "4.2.0"
+
+mapr_client_user: "mapr"
+mapr_client_group: "mapr"
+mapr_client_uid: "1000"
+mapr_client_gid: "1000"
+mapr_client_home: "/home/mapr"
+
+mapr_client_cluster_name: ""
+mapr_client_cldb_nodes: ""
+mapr_client_history_server_node: ""
+mapr_client_zookeeper_list: ""
+
+mapr_client_java_version: "8"
+mapr_client_java_home: "/usr/lib/jvm/java-{{ mapr_client_java_version }}-oracle"
+
+#Mapr env.sh
+mapr_cluster_subnets: "0.0.0.0/32"
+# Default location for mapr-loopbacknfs package
+mapr_loopbacknfs_home: "/usr/local/mapr-loopbacknfs"
+# Mount the loopback with the following params:
+mapr_loopback_mnt_dir: "/mapr"
+mapr_loopback_src: "127.0.0.1:/mapr"
+
+# Pass in which specific packages to install
+mapr_client_install_packages: []
+#  - name: mapr-kafka
+#  - name: mapr-oozie
+
+# Pass in a list of environment vars
+mapr_client_env_vars:
+  - dest: /etc/environment
+    line: "OOZIE_URL='http://{{ inventory_hostname }}:11000/oozie'"
+    regexp: "^OOZIE_URL=.*$"

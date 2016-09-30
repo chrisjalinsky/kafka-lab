@@ -1,0 +1,117 @@
+---
+
+- name: Configure Mapr client
+  register: mapr_client_conf_output
+  shell: "/opt/mapr/server/configure.sh -N {{ mapr_client_cluster_name }} -c -C {{ mapr_client_cldb_nodes }} -HS {{ mapr_client_history_server_node }} -Z {{ mapr_client_zookeeper_list }}"
+  args:
+    executable: /bin/bash
+
+- name: Debug Mapr configuration
+  debug:
+    var: mapr_client_conf_output.stdout_lines
+
+- name: Ensure JAVA_HOME environment variable set
+  lineinfile:
+    dest: /etc/environment
+    line: "JAVA_HOME={{ mapr_client_java_home }}"
+    regexp: "^JAVA_HOME=.*$"
+
+- name: Ensure additional environment variables set
+  lineinfile:
+    dest: "{{ item.dest }}"
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
+  with_items: "{{ mapr_client_env_vars }}"
+
+# mapr client, etc..
+- name: Workaround for the Ansible 2.2 way to install packages
+  shell: apt-get install mapr-client -y --allow-unauthenticated
+
+- name: Template /opt/mapr/hadoop/hadoop-{{ mapr_client_hadoop_version }}/etc/hadoop/core-site.xml
+  template:
+    src: "core-site.xml"
+    dest: "/opt/mapr/hadoop/hadoop-{{ mapr_client_hadoop_version }}/etc/hadoop/core-site.xml"
+
+#- name: Include tasks files for mapr packages
+#  include: "{{ item.name }}.yml"
+#  with_items: "{{ mapr_client_install_packages }}"
+
+# Mapr loopbacknfs
+- name: Install nfs-common apt package
+  apt:
+    name: nfs-common
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Workaround for the Ansible 2.2 way to install packages
+  shell: apt-get install mapr-loopbacknfs -y --allow-unauthenticated
+
+- name: "Ensure additional loopbacknfs variables set in /usr/local/mapr-loopbacknfs/initscripts/mapr-loopbacknfs"
+  lineinfile:
+    dest: "/usr/local/mapr-loopbacknfs/initscripts/mapr-loopbacknfs"
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
+  with_items:
+    - line: "CLUSTER_NAME={{ mapr_client_cluster_name }}"
+      regexp: "^CLUSTER_NAME=.*"
+    - line: "CLDB_IPS='{{ mapr_client_cldb_nodes }}'"
+      regexp: "^CLDB_IPS=.*"
+
+- name: Template mapr-loopbacknfs env.sh file
+  template:
+    src: "env.sh"
+    dest: "{{ mapr_loopbacknfs_home }}/conf/env.sh"
+
+# Mapr oozie
+#- name: Workaround for the Ansible 2.2 way to install packages
+#  shell: apt-get install mapr-client -y --allow-unauthenticated
+#
+#- name: Template /opt/mapr/oozie/oozie-{{ mapr_client_oozie_version }}/conf/oozie-site.xml
+#  template:
+#    src: "oozie-site.xml"
+#    dest: "/opt/mapr/oozie/oozie-{{ mapr_client_oozie_version }}/conf/oozie-site.xml"
+
+- name: Reconfigure mapr server
+  shell: "/opt/mapr/server/configure.sh -R -N {{ mapr_client_cluster_name }} -c -C {{ mapr_client_cldb_nodes }} -HS {{ mapr_client_history_server_node }} -Z {{ mapr_client_zookeeper_list }}"
+  args:
+    executable: /bin/bash
+
+- name: Start mapr-loopbacknfs service
+  service:
+    name: mapr-loopbacknfs
+    state: started
+
+- name: Ensure /mapr mountpoint dir created
+  file:
+    dest: "{{ mapr_loopback_mnt_dir }}"
+    state: directory
+
+- name: Ensure NFS is mounted
+  mount: name="{{ mapr_loopback_mnt_dir }}" src="{{ mapr_loopback_src }}" fstype=nfs opts=hard,nolock dump=0 passno=2 state=mounted
+  ignore_errors: yes
+
+- name: Ensure /proc/sys files include 128
+  shell: "echo 128 > {{ item }}"
+  with_items:
+    - "/proc/sys/sunrpc/tcp_slot_table_entries"
+    - "/proc/sys/sunrpc/tcp_max_slot_table_entries"
+
+- name: Add modprobe.d
+  lineinfile:
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
+    dest: "/etc/modprobe.d/sunrpc.conf"
+    create: yes
+  with_items:
+    - line: "options sunrpc tcp_slot_table_entries=128"
+      regexp: "^options\\s+sunrpc\\s+tcp_slot_table_entries=.*"
+    - line: "options sunrpc tcp_max_slot_table_entries=128"
+      regexp: "^options\\s+sunrpc\\s+tcp_max_slot_table_entries=.*"
+
+- name: Ensure NFS is unmounted
+  mount: name="{{ mapr_loopback_mnt_dir }}" state=unmounted
+  ignore_errors: yes
+
+- name: Ensure NFS is remounted
+  mount: name="{{ mapr_loopback_mnt_dir }}" src="{{ mapr_loopback_src }}" fstype=nfs opts=hard,nolock dump=0 passno=2 state=mounted
+  ignore_errors: yes

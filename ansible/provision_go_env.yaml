@@ -1,0 +1,9 @@
+---
+
+- name: Provision Go env
+  hosts: hadoop1.lan
+  become: yes
+  become_user: root
+  roles:
+    - role: go
+      go_user: "vagrant"

@@ -1,0 +1,99 @@
+---
+
+kafka_confluent_archive: "3.0"
+kafka_confluent_version: "3.0.0"
+kafka_scala_version: "2.11"
+kafka_confluent_url: "http://packages.confluent.io/archive/{{ kafka_confluent_archive }}/confluent-{{ kafka_confluent_version }}-{{ kafka_scala_version }}.tar.gz"
+kafka_confluent_apt_key: "http://packages.confluent.io/deb/{{ kafka_confluent_archive }}/archive.key"
+
+kafka_user: "kafka"
+kafka_group: "kafka"
+kafka_uid: "10001"
+kafka_gid: "10001"
+kafka_home: "/home/kafka"
+kafka_dir: "/opt/kafka"
+# useful for an edge mapr node
+#kafka_dir: "/opt/mapr/kafka/kafka-0.9.0/bin/"
+
+#kafka_cluster_name: ""
+#kafka_cldb_nodes: ""
+#kafka_history_server_node: ""
+#kafka_zookeeper_list: ""
+
+kafka_java_version: "8"
+kafka_java_home: "/usr/lib/jvm/java-{{ kafka_java_version }}-oracle"
+
+# Connect Avro Distributed
+kafka_zk_endpoint: "localhost:2181"
+kafka_broker_list: "localhost:9092"
+kafka_group_id: "connect-cluster"
+kafka_config_storage_topic: "connect-configs"
+kafka_offset_storage_topic: "connect-offsets"
+kafka_status_storage_topic: "connect-statuses"
+
+# Control Center vars
+kafka_control_center_id: 1
+kafka_control_center_servers:
+  - localhost
+
+# Connect Standalone
+kafka_confluent_offset_storage_file_filename: "/tmp/connect.offsets"
+
+# Kafka Rest
+kafka_confluent_kafka_rest_id: "kafka-rest-test-server"
+
+# Connect HDFS
+kafka_confluent_hdfs_url: "hdfs://localhost:9000"
+kafka_confluent_hdfs_topics: "test_hdfs"
+
+# Shared Upstart and service vars
+kafka_confluent_bin_dir: "/usr/bin"
+kafka_confluent_schema_registry_url: "http://localhost:8081"
+
+# Upstart templates and service names
+kafka_confluent_schema_registry:
+  name: "schema-registry-start" 
+  src: "etc/schema-registry/schema-registry.properties"
+  dest: "/etc/schema-registry/schema-registry.properties"
+
+kafka_confluent_connect_avro_distributed:
+  name: "connect-distributed" 
+  src: "etc/schema-registry/connect-avro-distributed.properties"
+  dest: "/etc/schema-registry/connect-avro-distributed.properties"
+
+kafka_confluent_connect_avro_standalone:
+  src: "etc/schema-registry/connect-avro-distributed.properties"
+  dest: "/etc/schema-registry/connect-avro-distributed.properties"
+
+kafka_confluent_control_center:
+  name: "control-center-start"
+  src: "etc/confluent-control-center/control-center.properties"
+  dest: "/etc/confluent-control-center/control-center.properties"
+
+# Deprecated with Confluent 3
+kafka_confluent_camus_run:
+  name: "camus-run"
+  src: "etc/camus/control-center.properties"
+  dest: "/etc/camus/camus.properties"
+
+# Connect HDFS Standalone
+kafka_confluent_hdfs_connect:
+  name: "connect-standalone"
+  src: "etc/kafka-connect-hdfs/quickstart-hdfs.properties"
+  dest: "/etc/kafka-connect-hdfs/quickstart-hdfs.properties"
+
+# Kafka Rest
+kafka_confluent_kafka_rest:
+  name: "kafka-rest-start"
+  src: "etc/kafka-rest/kafka-rest.properties"
+  dest: "/etc/kafka-rest/kafka-rest.properties"
+
+# Kafka Mirror Maker
+kafka_mirror_maker:
+  name: "kafka-mirror-maker"
+  consumer_src: "etc/kafka/mirror-maker-consumer.properties"
+  consumer_dest: "/etc/kafka/mirror-maker-consumer.properties"
+  producer_src: "etc/kafka/mirror-maker-producer.properties"
+  producer_dest: "/etc/kafka/mirror-maker-producer.properties"
+  num_streams: "2"
+  blacklist: "na_west*"

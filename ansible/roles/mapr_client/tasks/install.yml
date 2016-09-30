@@ -1,0 +1,25 @@
+---
+
+- name: Include Mapr Apt Repos
+  include: mapr-repos.yml
+
+#- name: Workaround for the Ansible 2.2 way to install packages
+#  when: ( mapr_client_install_packages is defined and mapr_client_install_packages|length > 0 )
+#  shell: apt-get install {{ item.name }} -y --allow-unauthenticated
+#  with_items: "{{ mapr_client_install_packages }}"
+
+# Install Java
+- name: Set debconf selections for java
+  debconf: name='oracle-java{{ mapr_client_java_version }}-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+
+- name: Workaround for the Ansible 2.2 allow deb conf vtype seen
+  shell: echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections
+
+- name: Install Oracle Java {{ mapr_client_java_version }} and Maven 3
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+    - "oracle-java{{ mapr_client_java_version }}-installer"
+    #- "maven"

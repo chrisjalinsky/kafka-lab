@@ -1,0 +1,29 @@
+---
+
+- name: Ensure git installed
+  apt:
+    name: git
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Ensure Git repo dir present
+  file:
+    dest: "{{ item }}"
+    mode: "0777"
+    state: directory
+  with_items:
+    - "/opt/mapr-streams-sample-programs"
+
+- name: Ensure Git repo present
+  git:
+    repo: "https://github.com/mapr-demos/mapr-streams-sample-programs.git"
+    dest: "/opt/mapr-streams-sample-programs"
+    update: no
+
+- name: Ensure target dir present and set with open perms
+  file:
+    dest: "{{ item }}"
+    mode: "0777"
+    state: directory
+  with_items:
+    - "/opt/mapr-streams-sample-programs/target"
