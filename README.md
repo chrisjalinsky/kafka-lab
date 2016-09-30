@@ -137,6 +137,7 @@ kafka-avro-console-producer --broker-list kafka1.lan:9092,kafka2.lan:9092,kafka3
 Sarama HTTP Go Server:
 ```
 %7B%22f1%22%3A%22val232323%22%7D
+```
 
 ###Confluent Kafka AvroConsumer
 ```
