@@ -26,3 +26,4 @@
       kafka_confluent_kafka_rest_id: "kafka-rest-{{ ansible_fqdn }}"
       #kafka_confluent_schema_registry_url: "http://kafka1.lan:8081"
       kafka_confluent_schema_registry_url: "http://127.0.0.1:8081"
+      kafka_confluent_mirror_maker_producer_bootstrap_servers: "{{ groups['kafka2_servers'] | join(':9092,') }}:9092"

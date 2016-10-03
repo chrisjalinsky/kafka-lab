@@ -1,0 +1,2 @@
+[kafka_servers]
+app[1:3].lan

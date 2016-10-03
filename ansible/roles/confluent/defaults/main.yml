@@ -50,14 +50,17 @@ kafka_confluent_hdfs_topics: "test_hdfs"
 kafka_confluent_bin_dir: "/usr/bin"
 kafka_confluent_schema_registry_url: "http://localhost:8081"
 
+# Mirror Maker
+kafka_confluent_mirror_maker_producer_bootstrap_servers: "localhost:9092"
+
 # Upstart templates and service names
 kafka_confluent_schema_registry:
-  name: "schema-registry-start" 
+  name: "schema-registry-start"
   src: "etc/schema-registry/schema-registry.properties"
   dest: "/etc/schema-registry/schema-registry.properties"
 
 kafka_confluent_connect_avro_distributed:
-  name: "connect-distributed" 
+  name: "connect-distributed"
   src: "etc/schema-registry/connect-avro-distributed.properties"
   dest: "/etc/schema-registry/connect-avro-distributed.properties"
 

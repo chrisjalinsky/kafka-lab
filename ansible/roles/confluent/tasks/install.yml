@@ -50,10 +50,6 @@
       dest: "{{ kafka_confluent_connect_avro_standalone.dest }}"
     - src: "{{ kafka_confluent_kafka_rest.src }}"
       dest: "{{ kafka_confluent_kafka_rest.dest }}"
-    - src: "{{ kafka_mirror_maker.consumer_src }}"
-      dest: "{{ kafka_mirror_maker.consumer_dest }}"
-    - src: "{{ kafka_mirror_maker.producer_src }}"
-      dest: "{{ kafka_mirror_maker.producer_dest }}"
 
 - name: Ensure upstart templates
   template:
@@ -69,8 +65,6 @@
       dest: "/etc/init/{{ kafka_confluent_hdfs_connect.name }}.conf"
     - src: "etc/init/{{ kafka_confluent_kafka_rest.name }}.conf"
       dest: "/etc/init/{{ kafka_confluent_kafka_rest.name }}.conf"
-    - src: "etc/init/{{ kafka_mirror_maker.name }}.conf"
-      dest: "/etc/init/{{ kafka_mirror_maker.name }}.conf"
     #- src: "etc/init/{{ kafka_confluent_connect_avro_distributed.name }}.conf"
     #  dest: "/etc/init/{{ kafka_confluent_connect_avro_distributed.name }}.conf"
     #- src: "etc/init/{{ kafka_confluent_camus_run.name }}.conf"

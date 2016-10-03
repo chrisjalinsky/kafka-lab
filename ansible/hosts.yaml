@@ -1,32 +1,48 @@
----
+--- 
 
-kafka_servers:
-  hosts: [ kafka1.lan,kafka2.lan,kafka3.lan ]
-  vars:
+kafka_servers: 
+  hosts: 
+    - kafka1.lan
+    - kafka2.lan
+    - kafka3.lan
+  vars: 
+    ansible_ssh_private_key_file: ~/.vagrant.d/insecure_private_key
     ansible_ssh_user: vagrant
-    ansible_ssh_private_key_file: "~/.vagrant.d/insecure_private_key"
-hadoop_servers:
-  hosts: [ hadoop1.lan ]
-  vars:
+kafka_wan_servers: 
+  hosts: 
+    - kafka1.wan
+    - kafka2.wan
+    - kafka3.wan
+  vars: 
+    ansible_ssh_private_key_file: ~/.vagrant.d/insecure_private_key
     ansible_ssh_user: vagrant
-    ansible_ssh_private_key_file: "~/.vagrant.d/insecure_private_key"
-all:
-  children: [ kafka_servers,hadoop_servers ]
-_meta:
-  hostvars:
-    kafka1.lan:
+all: 
+  children: 
+    - kafka_servers
+    - kafka_wan_servers
+_meta: 
+  hostvars: 
+    kafka1.lan: 
       vagrant_cpu: "1"
-      vagrant_mem: "3072"
       vagrant_ip: "192.168.0.21"
-    kafka2.lan:
+      vagrant_mem: "2048"
+    kafka2.lan: 
       vagrant_cpu: "1"
-      vagrant_mem: "3072"
       vagrant_ip: "192.168.0.22"
-    kafka3.lan:
+      vagrant_mem: "2048"
+    kafka3.lan: 
       vagrant_cpu: "1"
-      vagrant_mem: "3072"
       vagrant_ip: "192.168.0.23"
-    hadoop1.lan:
+      vagrant_mem: "2048"
+    kafka1.wan: 
       vagrant_cpu: "1"
-      vagrant_mem: "4096"
-      vagrant_ip: "192.168.0.31"
+      vagrant_ip: "192.168.10.21"
+      vagrant_mem: "2048"
+    kafka2.wan: 
+      vagrant_cpu: "1"
+      vagrant_ip: "192.168.10.22"
+      vagrant_mem: "2048"
+    kafka3.wan: 
+      vagrant_cpu: "1"
+      vagrant_ip: "192.168.10.23"
+      vagrant_mem: "2048"

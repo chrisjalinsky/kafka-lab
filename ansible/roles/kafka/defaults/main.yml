@@ -15,6 +15,26 @@ kafka_logs: "/var/log/kafka"
 kafka_brokers:
   - localhost
 kafka_listeners_port: "9092"
+
 # kafka_zk_endpoint should be overridden with comma separated list of zookeeper servers
 kafka_zk_endpoint: "localhost:2181"
 kafka_host_name: "localhost"
+
+# Mirror Maker
+kafka_mirror_maker_num_streams: "3"
+kafka_mirror_maker_group_id: "mirror-group"
+kafka_mirror_maker_blacklist: ""
+kafka_mirror_maker_whitelist: ""
+kafka_mirror_maker_producer_bootstrap_servers: "localhost:9092"
+kafka_mirror_maker_producer_compression_type: "none"
+kafka_mirror_maker_producer_type: "sync"
+kafka_mirror_maker_producer_serializer_class: "kafka.serializer.DefaultEncoder"
+kafka_mirror_maker_producer_queue_buffering_max_messages: "1000000"
+kafka_mirror_maker_producer_batch_num_messages: "50000"
+kafka_mirror_maker_producer_auto_create_topics_enable: "true"
+kafka_mirror_maker_consumer_socket_receive_buffer_bytes: "33554432"
+kafka_mirror_maker_consumer_zookeeper_connection_timeout_ms: "6000"
+
+# Mirror Maker Kafka 0.8.2.1 variables
+kafka_mirror_maker_num_producers: "1"
+kafka_mirror_maker_queue_size: "10000"

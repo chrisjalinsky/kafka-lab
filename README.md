@@ -212,3 +212,33 @@ curl -X GET -H "Accept: application/vnd.kafka.binary.v1+json" http://kafka1.lan:
 ```
 curl -X DELETE http://kafka1.lan:8082/consumers/my_binary_consumer/instances/my_consumer_instance
 ```
+
+##Legacy Kafka (0.8.2.1)
+####For older Kafka installs, the commands vary.
+NOTE: The following commands are ran from the Kafka bin dir
+
+###Kafka Describe Topics
+```
+./kafka-topics.sh --zookeeper kafka1.lan:2181,kafka2.lan:2181,kafka3.lan:2181 --topic lantest --describe
+```
+
+###Kafka Producer
+```
+./kafka-console-producer.sh --broker-list kafka1.lan:9092,kafka2.lan:9092,kafka3.lan:9092 --topic lantest
+```
+
+###Kafka Performance Test
+```
+./kafka-producer-perf-test.sh --broker-list kafka1.lan:9092,kafka2.lan:9092,kafka3.lan:9092 --topics lantest --messages 5000 --message-send-gap-ms 20 --vary-message-size
+```
+
+###Kafka Consumer
+Note: Consuming from a topic produced by one Kafka cluster to another, hence the different zookeeper list
+```
+./kafka-console-consumer.sh --zookeeper kafka1.wan:2181,kafka2.wan:2181,kafka3.wan:2181 --topic lantest --from-beginning
+```
+
+###Kafka Consumer offset checker
+```
+./kafka-consumer-offset-checker.sh --zookeeper kafka1.lan:2181,kafka2.lan:2181,kafka3.lan:2181 --group mirror-group
+```
