@@ -1,26 +1,40 @@
 #Kafka Connect, Kafka Streams, Spark Streams, Mapr Streams Lab
 
 ####This is a lab for testing out different ingestion methods with tools like Kafka, Confluent, Mapr and Spark
+Before running the playbooks, make sure you hosts file or DNS is resolving correctly. For some odd reason Vagrant is adding localhost entries that are conflicting with the cluster networking. I changed my /etc/hosts files since I didnt have DNS set up:
+```
+192.168.0.21    kafka1.lan
+192.168.0.22    kafka2.lan
+192.168.0.23    kafka3.lan
+192.168.10.21   kafka1.wan
+192.168.10.22   kafka2.wan
+192.168.10.23   kafka3.wan
+```
+###Verify Zookeeper
+```
+echo srvr | nc kafka2.lan 2181
+echo srvr | nc kafka2.wan 2181
+```
 
 ###Create topic
 ```
 root@kafka1:/opt/kafka_2.11-0.10.0.1/bin# ./kafka-topics.sh --create --topic test --partitions 3 --replication-factor 3 --zookeeper kafka1.lan:2181,kafka2.lan:2181,kafka3.lan:2181
 ```
-###Producer
+###Kafka Console Producer
 ```
 ./kafka-console-producer.sh --broker-list kafka1.lan:9092,kafka2.lan:9092,kafka3.lan:9092 --topic test
 ```
-###Consumer
+###Kafka Console Consumer
 ```
 ./kafka-console-consumer.sh --zookeeper kafka1.lan:2181,kafka2.lan:2181,kafka3.lan:2181 --topic test --from-beginning
 ```
 
-###Producer Performance
+###Kafka Producer Performance
 ```
 kafka@kafka3:/opt/kafka_2.11-0.10.0.1/bin$ ./kafka-producer-perf-test.sh --topic test --num-records 5000 --producer-props bootstrap.servers=kafka1.lan:9092,kafka2.lan:9092,kafka3.lan:9092 --throughput 10 --record-size 1024
 ```
 
-###Confluent Kafka AvroProducer
+###Confluent Kafka Avro Console Producer
 ```
 kafka-avro-console-producer --broker-list kafka1.lan:9092,kafka2.lan:9092,kafka3.lan:9092  --topic test --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"f1","type":"string"}]}'
 ```
@@ -31,12 +45,15 @@ kafka-avro-console-producer --broker-list kafka1.lan:9092,kafka2.lan:9092,kafka3
 kafka-avro-console-producer --broker-list kafka1.lan:9092,kafka2.lan:9092,kafka3.lan:9092 --topic test_hdfs --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"f1","type":"string"}]}'
 ```
 
-####Manually starting the connect-hdfs This embeds a REST API Server and accepts additional properties at the command line. The distributed connector does not. See below. (This works with hadoop..although I cant get it working with maprfs:/// yet.):
+####Manually starting the connect-hdfs
+The standalone embeds a REST API Server and accepts additional properties at the command line. The distributed connector does not. See below.
+NOTE: This works with hadoop..although I cant get it working with maprfs:/// yet.
 ```
 connect-standalone /etc/schema-registry/connect-avro-standalone.properties /etc/kafka-connect-hdfs/quickstart-hdfs.properties
 ```
 
-####Connect Distributed with HDFS, must use the REST API to pass properties to the kafka connect-distributed process:
+####Connect Distributed with HDFS
+You must use the embedded REST API to pass properties to the kafka connect-distributed process:
 
 On hadoop1.lan, create the HDFS filesystem. Additionally, setup the /topics and /logs folders so Kafka can write to HDFS.
 ```
@@ -50,12 +67,14 @@ hadoop fs -mkdir /logs
 hadoop fs -chmod 0777 /logs
 ```
 
-The connect distributed process has an upstart script running on the kafka cluster /etc/init/connect-standalone.conf, like so:
+The connect distributed process has an upstart script running on the kafka cluster /etc/init/connect-standalone.conf. I admit the name is confusing. Needs to be changed.
+
+/etc/init/connect-standalone.conf
 ```
 connect-distributed /etc/schema-registry/connect-avro-distributed.properties
 ```
 
-Have to use the embedded REST API to submit connectors (The following json is POSTed to the connect-distributed embedded Jetty API server):
+For the distributed connector, use the embedded REST API to submit connectors (The following json is POSTed to the connect-distributed embedded Jetty API server):
 ```
 {
     "name": "hdfs-sink-connector-distributed",
@@ -84,6 +103,7 @@ Have to use the embedded REST API to submit connectors (The following json is PO
     }
 }
 ```
+
 Additional standalone values that may need to be brought into connect-distributed json data:
 ```
 	filename.offset.zero.pad.width = 10
@@ -134,10 +154,8 @@ kafka-avro-console-producer --broker-list kafka1.lan:9092,kafka2.lan:9092,kafka3
 {"f1":"value3"}
 ```
 
-Sarama HTTP Go Server:
-```
-%7B%22f1%22%3A%22val232323%22%7D
-```
+###Sarama HTTP Go Server
+A Go installation role has been included to test out the [Sarama Go Server](https://github.com/Shopify/sarama) to produce messages. Look in the Repo's examples folder.
 
 ###Confluent Kafka AvroConsumer
 ```
@@ -242,3 +260,10 @@ Note: Consuming from a topic produced by one Kafka cluster to another, hence the
 ```
 ./kafka-consumer-offset-checker.sh --zookeeper kafka1.lan:2181,kafka2.lan:2181,kafka3.lan:2181 --group mirror-group
 ```
+
+###Kafka Mirror Maker
+Use the upstart script to run mirror-maker to replicate across clusters.
+```
+start mirror-maker
+```
+Then run a producer in the source cluster and consumer in the mirror cluster.
