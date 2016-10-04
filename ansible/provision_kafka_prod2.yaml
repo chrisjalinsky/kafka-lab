@@ -17,6 +17,8 @@
       kafka_host_name: "{{ inventory_hostname }}"
       kafka_version: "0.8.2.1"
       kafka_scala_version: "2.10"
+      kafka_mirror_maker_enable: "no"
+      kafka_mirror_maker_group_id: "mirror-group2"
       kafka_mirror_maker_producer_bootstrap_servers: "{{ groups['kafka_servers'] | join(':9092,') }}:9092"
       kafka_mirror_maker_blacklist: "blacklisttopic"
       kafka_mirror_maker_num_producers: "1"

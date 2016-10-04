@@ -30,7 +30,11 @@
 
 - name: Configure mirror maker init for kafka
   template: src=mirror-maker.conf dest=/etc/init/mirror-maker.conf
-  notify: Restart kafka
+  notify: Restart mirror-maker
+
+- name: Start mirror-maker
+  when: kafka_mirror_maker_enable == "yes"
+  service: name=mirror-maker state=started
 
 - name: Start kafka
   service: name=kafka state=started enabled=yes

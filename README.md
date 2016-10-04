@@ -19,6 +19,8 @@ echo srvr | nc kafka2.wan 2181
 ###Create topic
 ```
 root@kafka1:/opt/kafka_2.11-0.10.0.1/bin# ./kafka-topics.sh --create --topic test --partitions 3 --replication-factor 3 --zookeeper kafka1.lan:2181,kafka2.lan:2181,kafka3.lan:2181
+
+./kafka-topics.sh --create --topic wantest --partitions 3 --replication-factor 3 --zookeeper kafka1.wan:2181,kafka2.wan:2181,kafka3.wan:2181
 ```
 ###Kafka Console Producer
 ```
@@ -238,11 +240,13 @@ NOTE: The following commands are ran from the Kafka bin dir
 ###Kafka Describe Topics
 ```
 ./kafka-topics.sh --zookeeper kafka1.lan:2181,kafka2.lan:2181,kafka3.lan:2181 --topic lantest --describe
+./kafka-topics.sh --zookeeper kafka1.wan:2181,kafka2.wan:2181,kafka3.wan:2181 --topic wantest --describe
 ```
 
 ###Kafka Producer
 ```
 ./kafka-console-producer.sh --broker-list kafka1.lan:9092,kafka2.lan:9092,kafka3.lan:9092 --topic lantest
+./kafka-console-producer.sh --broker-list kafka1.wan:9092,kafka2.wan:9092,kafka3.wan:9092 --topic wantest
 ```
 
 ###Kafka Performance Test
@@ -254,6 +258,7 @@ NOTE: The following commands are ran from the Kafka bin dir
 Note: Consuming from a topic produced by one Kafka cluster to another, hence the different zookeeper list
 ```
 ./kafka-console-consumer.sh --zookeeper kafka1.wan:2181,kafka2.wan:2181,kafka3.wan:2181 --topic lantest --from-beginning
+./kafka-console-consumer.sh --zookeeper kafka1.lan:2181,kafka2.lan:2181,kafka3.lan:2181 --topic wantest --from-beginning
 ```
 
 ###Kafka Consumer offset checker

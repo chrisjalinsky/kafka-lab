@@ -21,6 +21,7 @@ kafka_zk_endpoint: "localhost:2181"
 kafka_host_name: "localhost"
 
 # Mirror Maker
+kafka_mirror_maker_enable: "no"
 kafka_mirror_maker_num_streams: "3"
 kafka_mirror_maker_group_id: "mirror-group"
 kafka_mirror_maker_blacklist: ""
